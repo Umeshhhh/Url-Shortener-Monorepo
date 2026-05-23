@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Private keys, certificates, and credentials
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+id_rsa
+id_dsa
+*.kdbx
+credentials.json
+secrets.json
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Runtime logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Prisma generated client output
+src/generated/prisma/
+src/src/generated/prisma/
+
+# Local database files and dumps
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.sql
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Docker/local override files
+docker-compose.override.yml
