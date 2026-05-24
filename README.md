@@ -1,8 +1,8 @@
 # URL Shortner
 
-A simple URL shortening API built with Node.js, Express, TypeScript, Prisma, and PostgreSQL.
+A simple URL shortening project with an Express/TypeScript backend and a prepared folder structure for a future React frontend.
 
-The API accepts a long URL, stores it in PostgreSQL with a generated short code, and lets users resolve that short code back to the original URL.
+The backend accepts a long URL, stores it in PostgreSQL with a generated short code, and lets users resolve that short code back to the original URL.
 
 ## Tech Stack
 
@@ -15,25 +15,40 @@ The API accepts a long URL, stores it in PostgreSQL with a generated short code,
 - Zod
 - Nano ID
 
+The `frontend/` folder is currently only a scaffold. React has not been initialized yet.
+
 ## Project Structure
 
 ```text
-.
-|-- src/
-|   |-- controllers/
-|   |-- generated/
-|   |-- middlewares/
+Url-Shortner/
+|-- backend/
+|   |-- src/
+|   |   |-- controllers/
+|   |   |-- generated/
+|   |   |-- middlewares/
+|   |   |-- prisma/
+|   |   |   |-- prisma.ts
+|   |   |   `-- schema.prisma
+|   |   |-- routes/
+|   |   |-- services/
+|   |   |-- app.ts
+|   |   `-- server.ts
 |   |-- prisma/
-|   |   |-- prisma.ts
-|   |   `-- schema.prisma
-|   |-- routes/
-|   |-- services/
-|   |-- app.ts
-|   `-- server.ts
-|-- prisma.config.ts
-|-- package.json
-|-- tsconfig.json
-`-- .env
+|   |-- package.json
+|   |-- package-lock.json
+|   |-- prisma.config.ts
+|   |-- tsconfig.json
+|   `-- .env
+|
+|-- frontend/
+|   |-- src/
+|   |   |-- api/
+|   |   |-- components/
+|   |   `-- pages/
+|   `-- public/
+|
+|-- README.md
+`-- .gitignore
 ```
 
 ## Prerequisites
@@ -46,7 +61,7 @@ Install these before running the project:
 
 ## Environment Variables
 
-Create a `.env` file in the project root:
+Create a `.env` file inside `backend/`:
 
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5433/postgres?schema=public"
@@ -69,33 +84,27 @@ If the container already exists, start it with:
 docker start url-shortner-postgres
 ```
 
-## Install Dependencies
+## Install Backend Dependencies
 
 ```powershell
-npm install
-```
-
-On Windows PowerShell, prefer `npm.cmd` if script execution policy blocks `npm`:
-
-```powershell
+cd backend
 npm.cmd install
 ```
 
+On Windows PowerShell, `npm.cmd` avoids script execution policy issues that can block `npm`.
+
 ## Set Up Prisma
 
-Generate the Prisma client:
+Run these commands from the `backend/` folder:
 
 ```powershell
 npm.cmd run prisma:generate
-```
-
-Push the schema to the database:
-
-```powershell
 npx.cmd prisma db push
 ```
 
-## Run In Development
+## Run Backend In Development
+
+From `backend/`:
 
 ```powershell
 npm.cmd run dev
@@ -107,25 +116,22 @@ The server runs on:
 http://localhost:5000
 ```
 
-## Build The Project
+## Build The Backend
+
+From `backend/`:
 
 ```powershell
 npm.cmd run build
 ```
 
-Compiled JavaScript is generated in `dist/`.
+Compiled JavaScript is generated in `backend/dist/`.
 
-## Run In Production Mode
+## Run Backend In Production Mode
 
-Build first:
+From `backend/`:
 
 ```powershell
 npm.cmd run build
-```
-
-Then start:
-
-```powershell
 npm.cmd start
 ```
 
@@ -168,7 +174,19 @@ GET http://localhost:5000/abc123XY
 
 The API looks up the original URL for the given short code.
 
-## Useful Scripts
+## Frontend
+
+The `frontend/` folder is ready for a future React app, but React has not been initialized.
+
+When you are ready, you can initialize it with Vite from the project root:
+
+```powershell
+npm create vite@latest frontend -- --template react-ts
+```
+
+## Useful Backend Scripts
+
+Run these from `backend/`:
 
 ```text
 npm.cmd run dev              Start development server
@@ -180,6 +198,6 @@ npm.cmd run prisma:validate  Validate Prisma schema
 
 ## Notes
 
-- Keep `.env` private.
+- Keep `backend/.env` private.
 - Use `localhost:5433` for the Docker PostgreSQL database.
-- If you change `schema.prisma`, run `npx.cmd prisma db push` and `npm.cmd run prisma:generate` again.
+- If you change `backend/src/prisma/schema.prisma`, run `npx.cmd prisma db push` and `npm.cmd run prisma:generate` again from `backend/`.

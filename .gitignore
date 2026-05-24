@@ -24,6 +24,7 @@ secrets.json
 dist/
 build/
 coverage/
+frontend/dist/
 
 # Runtime logs
 logs/
@@ -36,6 +37,8 @@ pnpm-debug.log*
 # Prisma generated client output
 src/generated/prisma/
 src/src/generated/prisma/
+backend/src/generated/prisma/
+backend/src/src/generated/prisma/
 
 # Local database files and dumps
 *.db
