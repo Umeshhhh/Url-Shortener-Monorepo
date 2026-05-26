@@ -1,14 +1,13 @@
 import prisma from "../prisma/prisma";
 
-export const urlStoreService = async (originalUrl: string, shortUrl: string, shortCode: string) => {
+export const urlStoreService = async (originalUrl: string, shortCode: string) => {
 
     try{
 
         await prisma.shortUrl.create({
             data: {
                 originalUrl,
-                shortCode,
-                shortUrl
+                shortCode
             }
         })
 

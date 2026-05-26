@@ -17,7 +17,6 @@ model ShortUrl {
   id          Int      @id @default(autoincrement())
   originalUrl String
   shortCode   String   @unique
-  shortUrl    String   @unique
   createdAt   DateTime @default(now())
   clicks      Int      @default(0)
 }

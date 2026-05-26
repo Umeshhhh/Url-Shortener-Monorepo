@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const url = (url : string) => {
+export const shortUrlGenerator = async (url : string) => {
 
     let data = JSON.stringify({
         "url": `${url}`
@@ -16,13 +16,12 @@ export const url = (url : string) => {
         data : data
     };
 
-    axios.request(config)
-    .then((response) => {
-        return JSON.stringify(response);
-    })
-    .catch((error) => {
-        console.log(error);
+    try{
+        const response = await axios.request(config)
+        return response.data;
+    }catch(err){
+        console.log(err);
         throw new Error("Error while requesting backend");
-    });
+    }
 
 }

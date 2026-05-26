@@ -21,13 +21,12 @@ export const shortenUrl = async (req : Request, res : Response) => {
     try{
         
         const shortCode = await urlShortenService();
-        const shortUrl = `${req.protocol}://${req.get("host")}/${shortCode}`;
         
-        await urlStoreService(url, shortUrl, shortCode);
+        await urlStoreService(url, shortCode);
 
         return res.status(200).json({ 
             message: "URL shortened successfully",
-            newUrl: shortUrl
+            shortCode
         });
     }catch(err){
         console.log(err);

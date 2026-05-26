@@ -1,12 +1,6 @@
 import "../App.css";
 import { useState, useEffect } from "react";
-import { url } from "../api/url";
-import axios from "axios";
-
-interface URLResponse {
-    message: string;
-    newUrl: string;
-}
+import { shortUrlGenerator } from "../api/shortUrlGenerator";
 
 const LandingPage = () => {
 
@@ -23,32 +17,9 @@ const LandingPage = () => {
         }
         setEmptyUrlError(false);
         try{
-            let data = JSON.stringify({
-                "url": `${webUrl}`
-            });
-
-            let config = {
-                method: 'post',
-                maxBodyLength: Infinity,
-                url: 'http://localhost:5000/shorten',
-                headers: { 
-                    'Content-Type': 'application/json'
-                },
-                data : data
-            };
-
-            axios.request(config)
-            .then((response) => {
-                setShortUrl(response.data.newUrl);
-            })
-            .catch((error) => {
-                console.log(error);
-                throw new Error("Error while requesting backend");
-            });
-            // const response = await url(webUrl);
-            // const extractedResponse: URLResponse = typeof response === "string" ? JSON.parse(response) : (response as any);
-            // console.log(extractedResponse);
-            // setShortUrl(extractedResponse.newUrl);
+            const response = await shortUrlGenerator(webUrl);
+            const newUrl = `${window.location.origin}/${response.shortCode}`;
+            setShortUrl(newUrl);
             setIsShortened(true);
         }catch(err){
             console.log(err);
@@ -59,6 +30,7 @@ const LandingPage = () => {
 
     useEffect(() => {
         setEmptyUrlError(false);
+        setIsShortened(false);
     }, [webUrl])
 
     return(
