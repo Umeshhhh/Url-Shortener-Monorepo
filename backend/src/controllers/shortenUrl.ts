@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { urlShortenService } from "../services/urlShortenService";
-import { urlStoreService } from "../services/urlStoreService";
+import { urlDatabaseStoreService } from "../services/urlDatabaseStoreService";
 import zod from "zod";
+import { urlRedisStoreService } from "../services/urlRedisStoreService";
 
 const urlSchema = zod.object({
     url: zod.string()
@@ -22,7 +23,9 @@ export const shortenUrl = async (req : Request, res : Response) => {
         
         const shortCode = await urlShortenService();
         
-        await urlStoreService(url, shortCode);
+        await urlDatabaseStoreService(url, shortCode);
+
+        await urlRedisStoreService(url, shortCode);
 
         return res.status(200).json({ 
             message: "URL shortened successfully",

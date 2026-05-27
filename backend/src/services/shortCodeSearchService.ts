@@ -11,7 +11,7 @@ export const shortCodeSerarchService = async (shortCode : string) => {
         });
 
         if(!url){
-            throw new Error("No url found");
+            return null;
         }
 
         const updated = await prisma.shortUrl.update({

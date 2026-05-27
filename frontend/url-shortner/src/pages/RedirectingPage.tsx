@@ -6,6 +6,10 @@ const RedirectingPage = () => {
     const handleRedirect = async () => {
 
         const shortCode = window.location.pathname.split("/")[1];
+        if(!shortCode || shortCode === "undefined") {
+            console.log("No valid short code found in the URL");
+            return;
+        }
 
         let data = '';
 

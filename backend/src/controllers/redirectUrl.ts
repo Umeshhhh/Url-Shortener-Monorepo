@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import zod from "zod";
 import { shortCodeSerarchService } from "../services/shortCodeSearchService";
+import { redisUrlSearch } from "../services/redisUrlSearch";
+import { urlRedisStoreService } from "../services/urlRedisStoreService";
 
 const shortCodeSchema = zod.object({
     shortCode: zod.string()
@@ -19,16 +21,35 @@ export const redirectUrl = async (req : Request, res : Response) => {
 
     try{
 
-        const { originalUrl } = await shortCodeSerarchService(validatedShortCode);
+        try{
 
-        if (!originalUrl) {
+            const redisUrl = await redisUrlSearch(validatedShortCode);
+
+            if(redisUrl) {
+                return res.status(200).json({
+                    mssg: "Original Url is retrieved from redis",
+                    originalUrl: redisUrl
+                });
+            }
+
+        }catch(err) {
+            console.log(err);
+        }
+
+        const urlRecord = await shortCodeSerarchService(validatedShortCode);
+
+        if (!urlRecord || !urlRecord.originalUrl) {
             return res.status(404).json({ mssg: "URL not found" });
         }
 
+        const { originalUrl } = urlRecord;
+
+        await urlRedisStoreService(validatedShortCode, originalUrl);
+
         return res.status(200).json({
-            mssg: "Original Url is retrieved",
+            mssg: "Original Url is retrieved from database",
             originalUrl
-        }).redirect(originalUrl);
+        });
 
     } catch (e) {
         console.log(e);

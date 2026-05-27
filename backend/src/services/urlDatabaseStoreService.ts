@@ -1,6 +1,7 @@
 import prisma from "../prisma/prisma";
+import RedisSingleTon from "../redis/redisClient";
 
-export const urlStoreService = async (originalUrl: string, shortCode: string) => {
+export const urlDatabaseStoreService = async (originalUrl: string, shortCode: string) => {
 
     try{
 
@@ -9,12 +10,12 @@ export const urlStoreService = async (originalUrl: string, shortCode: string) =>
                 originalUrl,
                 shortCode
             }
-        })
+        });
 
     }catch(err){
 
         console.log(err);
-        throw new Error("Error storing URL in database");
+        throw new Error("Error storing URL in Database/Redis");
         
     }
 
