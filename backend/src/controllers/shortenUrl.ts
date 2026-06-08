@@ -5,6 +5,9 @@ import zod from "zod";
 import { urlRedisStoreService } from "../services/urlRedisStoreService";
 import { isValidUrl } from "../utils/urlValidator";
 import { sanitizeUrl } from "../utils/urlSanitizer";
+import { isSSRFSafeUrl } from "../services/ssrfValidation";
+import { isReachableURL } from "../services/urlReachabilityCheck";
+import { safeBrowsingCheck } from "../services/safeBrowsingCheck";
 
 const urlSchema = zod.object({
     url: zod.string()
@@ -29,9 +32,25 @@ export const shortenUrl = async (req : Request, res : Response) => {
         }
 
         const sanitizedUrl = sanitizeUrl(url);
+        if(!sanitizedUrl){
+            throw new Error("URL sanitization failed!!");
+        }
 
-        
-        
+        const ssrfSafe = await isSSRFSafeUrl(sanitizedUrl);
+        if(!ssrfSafe){
+            throw new Error("URL failed SSRF validation!!");
+        }
+
+        const reachableUrl = await isReachableURL(sanitizedUrl);
+        if(!reachableUrl){
+            throw new Error("URL is not reachable!!");
+        }
+
+        const safeUrl = await safeBrowsingCheck(sanitizedUrl);
+        if(!safeUrl){
+            throw new Error("URL is not safe!!");
+        }
+
         const shortCode = await urlShortenService();
         
         await urlDatabaseStoreService(url, shortCode);
@@ -44,7 +63,7 @@ export const shortenUrl = async (req : Request, res : Response) => {
 
     }catch(err){
         console.log(err);
-        return res.status(500).json({ mssg: "Internal server error" });
+        return res.status(500);
     }
 
 
