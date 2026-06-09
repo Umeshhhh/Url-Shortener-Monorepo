@@ -28,27 +28,27 @@ export const shortenUrl = async (req : Request, res : Response) => {
     try{
 
         if(!isValidUrl(url)){
-            throw new Error("Invalid URL provided!!");
+            return res.status(400).json({ mssg: "Invalid URL format!!" });
         }
 
         const sanitizedUrl = sanitizeUrl(url);
         if(!sanitizedUrl){
-            throw new Error("URL sanitization failed!!");
+            return res.status(400).json({ mssg: "URL sanitization failed!!" });
         }
 
         const ssrfSafe = await isSSRFSafeUrl(sanitizedUrl);
         if(!ssrfSafe){
-            throw new Error("URL failed SSRF validation!!");
+            return res.status(400).json({ mssg: "URL is potentially vulnerable to SSRF attacks!!" });
         }
 
         const reachableUrl = await isReachableURL(sanitizedUrl);
         if(!reachableUrl){
-            throw new Error("URL is not reachable!!");
+            console.warn(`URL is not reachable: ${sanitizedUrl}`);
         }
 
         const safeUrl = await safeBrowsingCheck(sanitizedUrl);
         if(!safeUrl){
-            throw new Error("URL is not safe!!");
+            return res.status(400).json({ mssg: "URL is not safe!!" });
         }
 
         const shortCode = await urlShortenService();
@@ -63,7 +63,7 @@ export const shortenUrl = async (req : Request, res : Response) => {
 
     }catch(err){
         console.log(err);
-        return res.status(500);
+        return res.status(500).json({ mssg: "Internal server error" });
     }
 
 

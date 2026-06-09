@@ -4,13 +4,15 @@ export const isReachableURL = async (urlString: string) : Promise<boolean> => {
 
     try {
 
-        await axios.head(urlString, {
+        const response = await axios.get(urlString, {
             timeout: 5000,
             maxRedirects: 5,
-        });
+            validateStatus: () => true
+        })
 
-        return true;
-    }catch(err) {
+        return response.status > 0;
+
+    }catch {
         return false;
     }
 
