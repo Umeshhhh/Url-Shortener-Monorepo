@@ -1,14 +1,15 @@
 import prisma from "../prisma/prisma";
-import RedisSingleTon from "../redis/redisClient";
 
-export const urlDatabaseStoreService = async (originalUrl: string, shortCode: string) => {
+export const urlDatabaseStoreService = async (originalUrl: string, shortCode: string, isProtected: boolean, password: string | null) => {
 
     try{
 
         await prisma.shortUrl.create({
             data: {
                 originalUrl,
-                shortCode
+                shortCode,
+                isProtected,
+                password
             }
         });
 

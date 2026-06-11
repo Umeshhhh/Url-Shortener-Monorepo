@@ -8,9 +8,28 @@ const shortCodeSchema = zod.object({
     shortCode: zod.string()
 });
 
+const bodySchema = zod.object({
+    password: zod.string()
+});
+
+const protectedCheck = ( password: string, storedPassword: string, res: Response) => {
+
+    const bodyResult = bodySchema.safeParse({ password });
+
+    if(!bodyResult.success) {
+        return res.status(400).json({ mssg: "Password is required for protected URL" });
+    }
+
+    if(bodyResult.data.password !== storedPassword){
+        return res.status(401).json({ mssg: "Incorrect password" });
+    }
+
+}
+
 export const redirectUrl = async (req : Request, res : Response) => {
 
     const shortCode = req.params.shortCode;
+    const { urlPassword } = req.body;
     const result = shortCodeSchema.safeParse({ shortCode });
 
     if(!result.success){
@@ -25,10 +44,16 @@ export const redirectUrl = async (req : Request, res : Response) => {
 
             const redisUrl = await redisUrlSearch(validatedShortCode);
 
+            if(redisUrl && redisUrl.isProtected) {
+
+                protectedCheck(urlPassword, redisUrl.password, res);
+
+            }
+
             if(redisUrl) {
                 return res.status(200).json({
                     mssg: "Original Url is retrieved from redis",
-                    originalUrl: redisUrl
+                    originalUrl: redisUrl.originalUrl
                 });
             }
 
@@ -42,9 +67,15 @@ export const redirectUrl = async (req : Request, res : Response) => {
             return res.status(404).json({ mssg: "URL not found" });
         }
 
-        const { originalUrl } = urlRecord;
+        const { originalUrl, isProtected, password } = urlRecord;
 
-        await urlRedisStoreService(validatedShortCode, originalUrl);
+        if(isProtected && password) {
+
+            protectedCheck(urlPassword, password, res);
+
+        }
+
+        await urlRedisStoreService(validatedShortCode, originalUrl, isProtected, password);
 
         return res.status(200).json({
             mssg: "Original Url is retrieved from database",

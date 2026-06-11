@@ -1,6 +1,13 @@
 import prisma from "../prisma/prisma"
 
-export const shortCodeSerarchService = async (shortCode : string) => {
+export const shortCodeSerarchService = async (shortCode : string) : Promise<{
+    originalUrl: string,
+    shortCode: string,
+    createdAt: Date,
+    clicks: number
+    isProtected: boolean,
+    password: string | null,
+} | null> => {
 
     try{
 

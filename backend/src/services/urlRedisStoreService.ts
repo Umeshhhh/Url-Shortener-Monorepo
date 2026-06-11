@@ -1,12 +1,18 @@
 import RedisSingleTon from "../redis/redisClient";
 
 
-export const urlRedisStoreService = async (shortCode: string, originalUrl: string) => {
+export const urlRedisStoreService = async (shortCode: string, originalUrl: string, isProtected: boolean, password: string | null) => {
 
     try{
         const redisClient = await RedisSingleTon.getinstance();
 
-        await redisClient.set(shortCode, originalUrl);
+        const value = {
+            originalUrl,
+            isProtected,
+            password
+        }
+
+        await redisClient.set(shortCode, JSON.stringify(value));
 
     }catch(err) {
 

@@ -10,7 +10,7 @@ export const redisUrlSearch = async (shortCode : string) => {
 
         if(value) {
             console.log("Redis Hit");
-            return value;
+            return JSON.parse(value);
         }
 
         throw new Error("Redis miss error");

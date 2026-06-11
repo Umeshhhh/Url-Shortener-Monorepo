@@ -19,4 +19,6 @@ model ShortUrl {
   shortCode   String   @unique
   createdAt   DateTime @default(now())
   clicks      Int      @default(0)
+  isProtected Boolean  @default(false)
+  password    String? 
 }
