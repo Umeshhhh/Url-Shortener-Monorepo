@@ -1,13 +1,7 @@
 import prisma from "../prisma/prisma"
+import { CreateShortUrlInput } from "../types/shortUrlTypes";
 
-export const shortCodeSerarchService = async (shortCode : string) : Promise<{
-    originalUrl: string,
-    shortCode: string,
-    createdAt: Date,
-    clicks: number
-    isProtected: boolean,
-    password: string | null,
-} | null> => {
+export const shortCodeSearchService = async (shortCode : string) : Promise<CreateShortUrlInput | null> => {
 
     try{
 
@@ -18,13 +12,34 @@ export const shortCodeSerarchService = async (shortCode : string) : Promise<{
         });
 
         if(!url){
-            return null;
+            
+            const customCode = await prisma.shortUrl.findUnique({
+                where: {
+                    customAlias : shortCode
+                }
+            });
+
+            if(!customCode) return null;
+
+            const updated = await prisma.shortUrl.update({
+                where: { 
+                    customAlias: shortCode
+                },
+                data : {
+                    clickCount: {
+                        increment: 1
+                    }
+                }
+            });
+
+            return updated;
+
         }
 
         const updated = await prisma.shortUrl.update({
             where: { shortCode },
             data : {
-                clicks: {
+                clickCount: {
                     increment: 1
                 }
             }

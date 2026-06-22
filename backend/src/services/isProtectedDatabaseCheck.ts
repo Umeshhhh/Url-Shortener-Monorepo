@@ -1,6 +1,6 @@
 import prisma from "../prisma/prisma";
 
-export const isProtectedDatabaseCheck = async (shortCode: string) : Promise<Object | null> => {
+export const isProtectedDatabaseCheck = async (shortCode: string) : Promise<Boolean> => {
 
     try {
 
@@ -10,19 +10,22 @@ export const isProtectedDatabaseCheck = async (shortCode: string) : Promise<Obje
             }
         });
 
-        if(data && data.isProtected) {
-
-            return {
-                originalUrl: data.originalUrl,
-                shortCode: data.shortCode,
-                createdAt: data.createdAt,
-                clicks: data.clicks,
-                isProtected: data.isProtected,
-                password: data.password
-            };
+        if(data) {
+            if(data.isProtected) {
+                return true;
+            }
+            return false;
         }
 
-        return null;
+        const customAlias = await prisma.shortUrl.findUnique({
+            where: {
+                customAlias: shortCode
+            }
+        });
+
+        if(customAlias && customAlias.isProtected) return true;
+
+        return false;
 
     }catch(err) {
 

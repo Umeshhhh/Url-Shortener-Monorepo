@@ -1,18 +1,22 @@
 import RedisSingleTon from "../redis/redisClient";
+import { CreateShortUrlInput } from "../types/shortUrlTypes";
 
 
-export const urlRedisStoreService = async (shortCode: string, originalUrl: string, isProtected: boolean, password: string | null) => {
+export const urlRedisStoreService = async (
+    input: CreateShortUrlInput,
+    customAlias: string | null
+) => {
 
     try{
         const redisClient = await RedisSingleTon.getinstance();
 
-        const value = {
-            originalUrl,
-            isProtected,
-            password
-        }
+        if(customAlias){
 
-        await redisClient.set(shortCode, JSON.stringify(value));
+            await redisClient.set(customAlias, JSON.stringify(input));
+
+        }
+        
+        await redisClient.set(input.shortCode, JSON.stringify(input));
 
     }catch(err) {
 

@@ -1,6 +1,6 @@
 import RedisSingleTon from "../redis/redisClient";
 
-export const isProtectedRedisCheck  = async (shortCode: string) : Promise<Object | null> => {
+export const isProtectedRedisCheck  = async (shortCode: string) : Promise<boolean> => {
 
     const redisClient = await RedisSingleTon.getinstance();
 
@@ -12,19 +12,16 @@ export const isProtectedRedisCheck  = async (shortCode: string) : Promise<Object
             const data = JSON.parse(value);
 
             if(data.isProtected){
-
-                return data;
+                return true;
             }
-
-            return null;
         }
         
-        return null;
+        return false;
 
     }catch(err) {
 
         console.error("Error checking Redis for protected URL: ", err);
-        return null;
+        return false;
     }
 
 }

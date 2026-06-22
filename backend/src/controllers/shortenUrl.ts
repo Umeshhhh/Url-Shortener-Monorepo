@@ -8,29 +8,14 @@ import { sanitizeUrl } from "../utils/urlSanitizer";
 import { isSSRFSafeUrl } from "../services/ssrfValidation";
 import { isReachableURL } from "../services/urlReachabilityCheck";
 import { safeBrowsingCheck } from "../services/safeBrowsingCheck";
+import { ShortUrlBuilder } from "../builders/ShortUrlBuilder";
 
 const urlSchema = zod.object({
     url: zod.string(),
     isProtected: zod.boolean(),
     password: zod.string().optional(),
-    customALias: zod.string().optional()
+    customAlias: zod.string().optional()
 })
-
-interface CreateShortUrlInput {
-    originalUrl: string;
-    shortCode: string;
-    isProtected: boolean;
-    passwordHash: string | null;
-    isActive: boolean;
-    oneTimeAccess: boolean;
-    customAlias: string;
-    clickCount: number;
-    maxClicks: number | null;
-    startsAt: Date | null;
-    expiresAt: Date | null;
-    qrCode: string | null;
-    updatedAt: Date | null;
-}
 
 export const shortenUrl = async (req : Request, res : Response) => {
 
@@ -71,30 +56,20 @@ export const shortenUrl = async (req : Request, res : Response) => {
         }
 
         const shortCode = await urlShortenService();
-
-        const input : CreateShortUrlInput = {
-            originalUrl: sanitizedUrl,
-            shortCode: shortCode,
-            isProtected,
-            passwordHash: password || "",
-            isActive: true,
-            oneTimeAccess: false,
-            customAlias: "",
-            clickCount: 0,
-            maxClicks: null,
-            startsAt: null,
-            expiresAt: null,
-            qrCode: "",
-            updatedAt: null,
-        }
         
+        const input = new ShortUrlBuilder()
+            .setOriginalUrl(sanitizedUrl)
+            .setShortCode(shortCode)
+            .setProtection(isProtected, password)
+            .setCustomAlias(customAlias)
+            .build();
 
         await urlDatabaseStoreService(input);
-        await urlRedisStoreService(sanitizedUrl, shortCode, isProtected, password);
+        await urlRedisStoreService(input, input.customAlias);
 
         return res.status(200).json({ 
             message: "URL shortened successfully",
-            shortCode
+            shortCode : customAlias ? customAlias : shortCode
         });
 
     }catch(err){

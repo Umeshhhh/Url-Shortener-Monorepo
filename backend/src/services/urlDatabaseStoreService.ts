@@ -1,20 +1,5 @@
 import prisma from "../prisma/prisma";
-
-interface CreateShortUrlInput {
-    originalUrl: string;
-    shortCode: string;
-    isProtected: boolean;
-    passwordHash: string | null;
-    isActive: boolean;
-    oneTimeAccess: boolean;
-    customAlias: string;
-    clickCount: number;
-    maxClicks: number | null;
-    startsAt: Date | null;
-    expiresAt: Date | null;
-    qrCode: string | null;
-    updatedAt: Date | null;
-}
+import { CreateShortUrlInput } from "../types/shortUrlTypes";
 
 export const urlDatabaseStoreService = async (
     input: CreateShortUrlInput

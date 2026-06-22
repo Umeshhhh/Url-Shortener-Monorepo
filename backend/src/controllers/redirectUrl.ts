@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import zod from "zod";
-import { shortCodeSerarchService } from "../services/shortCodeSearchService";
+import { shortCodeSearchService } from "../services/shortCodeSearchService";
 import { redisUrlSearch } from "../services/redisUrlSearch";
 import { urlRedisStoreService } from "../services/urlRedisStoreService";
 
@@ -12,17 +12,14 @@ const bodySchema = zod.object({
     password: zod.string()
 });
 
-const protectedCheck = ( password: string, storedPassword: string, res: Response) => {
+const protectedCheck = ( password: string, storedPassword: string) : Boolean => {
 
     const bodyResult = bodySchema.safeParse({ password });
 
-    if(!bodyResult.success) {
-        return res.status(400).json({ mssg: "Password is required for protected URL" });
-    }
+    if(!bodyResult.success) return false;
+    if(bodyResult.data.password !== storedPassword) return false;
 
-    if(bodyResult.data.password !== storedPassword){
-        return res.status(401).json({ mssg: "Incorrect password" });
-    }
+    return true;
 
 }
 
@@ -46,7 +43,11 @@ export const redirectUrl = async (req : Request, res : Response) => {
 
             if(redisUrl && redisUrl.isProtected) {
 
-                protectedCheck(urlPassword, redisUrl.password, res);
+                if(!protectedCheck(urlPassword, redisUrl.passwordHash)){
+                    return res.status(401).json({
+                        mssg: "Password is not correct/valid"
+                    })
+                }
 
             }
 
@@ -58,28 +59,40 @@ export const redirectUrl = async (req : Request, res : Response) => {
             }
 
         }catch(err) {
-            console.log(err);
+            console.log("Error searching Redis: " + err);
         }
 
-        const urlRecord = await shortCodeSerarchService(validatedShortCode);
+        const urlRecord = await shortCodeSearchService(validatedShortCode);
 
         if (!urlRecord || !urlRecord.originalUrl) {
             return res.status(404).json({ mssg: "URL not found" });
         }
 
-        const { originalUrl, isProtected, password } = urlRecord;
+        if(urlRecord.isProtected && urlRecord.passwordHash){
+            if(!urlPassword) {
+                return res.status(401).json({
+                    mssg: "Password required to access link"
+                });
+            }
 
-        if(isProtected && password) {
-
-            protectedCheck(urlPassword, password, res);
+            if(!protectedCheck(urlPassword, urlRecord.passwordHash)){
+                return res.status(401).json({
+                    mssg: "Password is incorrect/invalid"
+                })
+            }
 
         }
 
-        await urlRedisStoreService(validatedShortCode, originalUrl, isProtected, password);
+        try {
+            const customAlias = urlRecord.customAlias
+            await urlRedisStoreService(urlRecord, customAlias);
+        }catch(err) {
+            console.log("Error storing data in redis: " + err);
+        }
 
         return res.status(200).json({
             mssg: "Original Url is retrieved from database",
-            originalUrl
+            originalUrl : urlRecord.originalUrl
         });
 
     } catch (e) {
