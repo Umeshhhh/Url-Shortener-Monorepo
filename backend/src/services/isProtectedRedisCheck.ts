@@ -1,27 +1,25 @@
 import RedisSingleTon from "../redis/redisClient";
+import { CreateShortUrlInput } from "../types/shortUrlTypes";
 
-export const isProtectedRedisCheck  = async (shortCode: string) : Promise<boolean> => {
-
-    const redisClient = await RedisSingleTon.getinstance();
+export const isProtectedRedisCheck  = async (shortCode: string) : Promise<CreateShortUrlInput | null> => {
 
     try {
+
+        const redisClient = await RedisSingleTon.getinstance();
 
         const value = await redisClient.get(shortCode);
         if(value) {
 
             const data = JSON.parse(value);
-
-            if(data.isProtected){
-                return true;
-            }
+            return data;
         }
         
-        return false;
+        return null;
 
     }catch(err) {
 
         console.error("Error checking Redis for protected URL: ", err);
-        return false;
+        return null;
     }
 
 }

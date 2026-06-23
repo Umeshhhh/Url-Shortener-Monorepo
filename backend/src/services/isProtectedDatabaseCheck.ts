@@ -1,6 +1,7 @@
 import prisma from "../prisma/prisma";
+import { CreateShortUrlInput } from "../types/shortUrlTypes";
 
-export const isProtectedDatabaseCheck = async (shortCode: string) : Promise<Boolean> => {
+export const isProtectedDatabaseCheck = async (shortCode: string) : Promise<CreateShortUrlInput | null> => {
 
     try {
 
@@ -11,10 +12,7 @@ export const isProtectedDatabaseCheck = async (shortCode: string) : Promise<Bool
         });
 
         if(data) {
-            if(data.isProtected) {
-                return true;
-            }
-            return false;
+            return data;
         }
 
         const customAlias = await prisma.shortUrl.findUnique({
@@ -23,9 +21,11 @@ export const isProtectedDatabaseCheck = async (shortCode: string) : Promise<Bool
             }
         });
 
-        if(customAlias && customAlias.isProtected) return true;
+        if(customAlias) {
+            return customAlias;
+        }
 
-        return false;
+        return null;
 
     }catch(err) {
 

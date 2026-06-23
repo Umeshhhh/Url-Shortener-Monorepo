@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import "../App.css";
+import { API_BASE_URL } from "../api/config";
 
 type RedirectStatus = "loading" | "not-found" | "error";
 
@@ -34,7 +35,7 @@ const RedirectingPage = () => {
       }
 
       try {
-        const response = await axios.get(`http://localhost:5000/${shortCode}`);
+        const response = await axios.get(`${API_BASE_URL}/resolve/${shortCode}`);
         const originalUrl = response.data?.originalUrl;
 
         if (!originalUrl) {

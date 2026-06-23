@@ -1,4 +1,5 @@
 import { createClient } from "redis";
+import { env } from "../config/env";
 
 class RedisSingleTon {
 
@@ -9,7 +10,7 @@ class RedisSingleTon {
         if(!this.instance){
 
             this.instance = createClient({
-                url: "redis://localhost:6379"
+                url: env.redisUrl
             });
 
             this.instance.on("error", (err: any) => {

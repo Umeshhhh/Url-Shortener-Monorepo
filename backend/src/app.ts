@@ -1,10 +1,13 @@
 import express from "express";
 import urlRoutes from "./routes/urlRoutes";
 import cors from "cors";
+import { env } from "./config/env";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: env.corsOrigins?.length ? env.corsOrigins : true
+}));
 app.use(express.json());
 app.use('/', urlRoutes);
 

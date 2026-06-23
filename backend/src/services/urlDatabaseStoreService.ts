@@ -1,6 +1,13 @@
 import prisma from "../prisma/prisma";
 import { CreateShortUrlInput } from "../types/shortUrlTypes";
 
+export class DuplicateShortUrlError extends Error {
+    constructor() {
+        super("Short code or custom alias already exists");
+        this.name = "DuplicateShortUrlError";
+    }
+}
+
 export const urlDatabaseStoreService = async (
     input: CreateShortUrlInput
 ) => {
@@ -28,6 +35,10 @@ export const urlDatabaseStoreService = async (
     }catch(err){
 
         console.log(err);
+        if((err as { code?: string }).code === "P2002") {
+            throw new DuplicateShortUrlError();
+        }
+
         throw new Error("Error storing URL data in Database");
         
     }

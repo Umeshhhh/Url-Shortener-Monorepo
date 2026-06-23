@@ -1,15 +1,17 @@
 import axios from "axios";
+import { API_BASE_URL } from "./config";
 
 export const shortUrlGenerator = async (url : string) => {
 
     let data = JSON.stringify({
-        "url": `${url}`
+        "url": `${url}`,
+        "isProtected": false
     });
 
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://localhost:5000/shorten',
+        url: `${API_BASE_URL}/shorten`,
         headers: { 
             'Content-Type': 'application/json'
         },

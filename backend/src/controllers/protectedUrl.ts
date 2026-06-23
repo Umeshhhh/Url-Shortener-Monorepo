@@ -20,19 +20,39 @@ export const protectedUrl = async (req: Request, res: Response) => {
 
     try {
 
-        const result = await isProtectedRedisCheck(validShortCode);
-        if(result) {
-            console.log("Protected URL found in Redis");
-            return res.status(200).json({ mssg: "URL is protected"});
+        const redisResult = await isProtectedRedisCheck(validShortCode);
+        if(redisResult) {
+            if(redisResult.isProtected){
+                return res.status(200).json({
+                    isProtected: true,
+                    mssg: "URL is protected"
+                });
+            }
+            return res.status(200).json({
+                isProtected: false,
+                mssg: "URL is not protected"
+            })
         }
 
         const dbResult = await isProtectedDatabaseCheck(validShortCode);
         if(dbResult) {
-            console.log("Protected URL found in Database");
-            return res.status(200).json({ mssg: "URL is protected"});
+            if(dbResult.isProtected){
+                return res.status(200).json({
+                    isProtected: true,
+                    mssg: "URL is protected"
+                });
+            }
+            
+            return res.status(200).json({
+                isProtected: false,
+                mssg: "URL is not protected"
+            });
         }
 
-        return res.status(404).json({ mssg: "URL is not protected" });
+        return res.status(404).json({
+            isProtected: false,
+            mssg: "URL not found"
+        });
 
     }catch(err) {
 
