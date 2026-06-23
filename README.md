@@ -1,8 +1,8 @@
 # URL Shortner
 
-A simple URL shortening project with an Express/TypeScript backend and a prepared folder structure for a future React frontend.
+A full-stack URL shortener built with an Express/TypeScript backend and a React/Vite frontend.
 
-The backend accepts a long URL, stores it in PostgreSQL with a generated short code, and lets users resolve that short code back to the original URL.
+The service validates and sanitizes submitted URLs, checks for SSRF risk and Google Safe Browsing threats, stores URL metadata in PostgreSQL, caches lookups in Redis, supports custom aliases, and can protect links with bcrypt-hashed passwords.
 
 ## Tech Stack
 
@@ -11,41 +11,47 @@ The backend accepts a long URL, stores it in PostgreSQL with a generated short c
 - TypeScript
 - Prisma
 - PostgreSQL
-- Docker
+- Redis
+- React
+- Vite
 - Zod
+- bcrypt
 - Nano ID
-
-The `frontend/` folder is currently only a scaffold. React has not been initialized yet.
+- Axios
 
 ## Project Structure
 
 ```text
 Url-Shortner/
 |-- backend/
+|   |-- prisma/
+|   |   `-- migrations/
 |   |-- src/
+|   |   |-- builders/
+|   |   |-- config/
 |   |   |-- controllers/
-|   |   |-- generated/
 |   |   |-- middlewares/
 |   |   |-- prisma/
-|   |   |   |-- prisma.ts
-|   |   |   `-- schema.prisma
+|   |   |-- redis/
 |   |   |-- routes/
 |   |   |-- services/
+|   |   |-- types/
+|   |   |-- utils/
 |   |   |-- app.ts
 |   |   `-- server.ts
-|   |-- prisma/
 |   |-- package.json
-|   |-- package-lock.json
 |   |-- prisma.config.ts
-|   |-- tsconfig.json
-|   `-- .env
+|   `-- tsconfig.json
 |
 |-- frontend/
-|   |-- src/
-|   |   |-- api/
-|   |   |-- components/
-|   |   `-- pages/
-|   `-- public/
+|   `-- url-shortner/
+|       |-- src/
+|       |   |-- api/
+|       |   |-- pages/
+|       |   |-- App.tsx
+|       |   `-- main.tsx
+|       |-- package.json
+|       `-- vite.config.ts
 |
 |-- README.md
 `-- .gitignore
@@ -53,86 +59,103 @@ Url-Shortner/
 
 ## Prerequisites
 
-Install these before running the project:
-
 - Node.js
 - npm
-- Docker Desktop
+- PostgreSQL
+- Redis
+- Google Safe Browsing API key
 
 ## Environment Variables
 
-Create a `.env` file inside `backend/`:
+Create `backend/.env`:
 
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5433/postgres?schema=public"
+REDIS_URL="redis://localhost:6379"
+GOOGLE_SAFE_BROWSING_API_KEY="your-google-safe-browsing-api-key"
 PORT=5000
+CORS_ORIGIN="http://localhost:5173"
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
 ```
 
-Do not commit `.env` to GitHub. Use `.env.example` for sample values if needed.
+Create `frontend/url-shortner/.env`:
 
-## Run PostgreSQL With Docker
+```env
+VITE_API_BASE_URL="http://localhost:5000"
+```
 
-This project uses host port `5433` to avoid conflicts with any local PostgreSQL running on `5432`.
+## Run Local Services With Docker
+
+PostgreSQL:
 
 ```powershell
 docker run -d --name url-shortner-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=postgres -p 5433:5432 postgres
 ```
 
-If the container already exists, start it with:
+Redis:
+
+```powershell
+docker run -d --name url-shortner-redis -p 6379:6379 redis
+```
+
+Start existing containers:
 
 ```powershell
 docker start url-shortner-postgres
+docker start url-shortner-redis
 ```
 
-## Install Backend Dependencies
-
-```powershell
-cd backend
-npm.cmd install
-```
-
-On Windows PowerShell, `npm.cmd` avoids script execution policy issues that can block `npm`.
-
-## Set Up Prisma
-
-Run these commands from the `backend/` folder:
-
-```powershell
-npm.cmd run prisma:generate
-npx.cmd prisma db push
-```
-
-## Run Backend In Development
+## Backend Setup
 
 From `backend/`:
 
 ```powershell
+npm.cmd install
+npm.cmd run prisma:generate
+npm.cmd run prisma:deploy
 npm.cmd run dev
 ```
 
-The server runs on:
+The backend runs on:
 
 ```text
 http://localhost:5000
 ```
 
-## Build The Backend
+Useful backend scripts:
 
-From `backend/`:
-
-```powershell
-npm.cmd run build
+```text
+npm.cmd run dev              Start development server
+npm.cmd run build            Compile TypeScript
+npm.cmd start                Run compiled server
+npm.cmd run prisma:generate  Generate Prisma client
+npm.cmd run prisma:validate  Validate Prisma schema
+npm.cmd run prisma:deploy    Apply migrations
 ```
 
-Compiled JavaScript is generated in `backend/dist/`.
+## Frontend Setup
 
-## Run Backend In Production Mode
-
-From `backend/`:
+From `frontend/url-shortner/`:
 
 ```powershell
-npm.cmd run build
-npm.cmd start
+npm.cmd install
+npm.cmd run dev
+```
+
+The frontend runs on:
+
+```text
+http://localhost:5173
+```
+
+Useful frontend scripts:
+
+```text
+npm.cmd run dev      Start Vite dev server
+npm.cmd run build    Build production frontend
+npm.cmd run lint     Run ESLint
+npm.cmd run preview  Preview production build
 ```
 
 ## API Endpoints
@@ -147,7 +170,20 @@ Request body:
 
 ```json
 {
-  "url": "https://example.com"
+  "url": "https://example.com",
+  "isProtected": false,
+  "customAlias": "my-link"
+}
+```
+
+For a protected URL:
+
+```json
+{
+  "url": "https://example.com",
+  "isProtected": true,
+  "password": "secret-password",
+  "customAlias": "private-link"
 }
 ```
 
@@ -156,48 +192,138 @@ Success response:
 ```json
 {
   "message": "URL shortened successfully",
-  "newUrl": "http://localhost:5000/abc123XY"
+  "shortCode": "my-link"
 }
 ```
 
-### Resolve Short URL
+### Browser Redirect
 
 ```http
 GET /:shortCode
 ```
 
-Example:
+This returns a `302` redirect to the original URL when the link is not protected.
 
-```text
-GET http://localhost:5000/abc123XY
+### Resolve URL As JSON
+
+```http
+GET /resolve/:shortCode
 ```
 
-The API looks up the original URL for the given short code.
+Success response:
 
-## Frontend
+```json
+{
+  "mssg": "Original Url is retrieved from redis",
+  "originalUrl": "https://example.com"
+}
+```
 
-The `frontend/` folder is ready for a future React app, but React has not been initialized.
+Protected links return `401` with:
 
-When you are ready, you can initialize it with Vite from the project root:
+```json
+{
+  "isProtected": true,
+  "mssg": "Password required to access link"
+}
+```
+
+### Access Protected URL
+
+```http
+POST /:shortCode/access
+```
+
+Request body:
+
+```json
+{
+  "urlPassword": "secret-password"
+}
+```
+
+Success response:
+
+```json
+{
+  "mssg": "Original Url is retrieved from database",
+  "originalUrl": "https://example.com"
+}
+```
+
+### Check Whether URL Is Protected
+
+```http
+GET /isProtected/:shortCode
+```
+
+Success response:
+
+```json
+{
+  "isProtected": true,
+  "mssg": "URL is protected"
+}
+```
+
+## Security Features
+
+- URL protocol validation for `http` and `https`
+- URL sanitization for common tracking query parameters
+- SSRF checks against private, loopback, unique-local, and link-local IP ranges
+- Google Safe Browsing threat checks
+- bcrypt hashing for protected URL passwords
+- Custom alias validation and reserved-word blocking
+- Redis caching for short-code and custom-alias lookups
+- Basic request rate limiting
+- CORS configuration through environment variables
+
+## Deployment Notes
+
+Set these backend environment variables in production:
+
+```text
+DATABASE_URL
+REDIS_URL
+GOOGLE_SAFE_BROWSING_API_KEY
+PORT
+CORS_ORIGIN
+RATE_LIMIT_WINDOW_MS
+RATE_LIMIT_MAX_REQUESTS
+```
+
+Set this frontend environment variable:
+
+```text
+VITE_API_BASE_URL
+```
+
+Backend deployment flow:
 
 ```powershell
-npm create vite@latest frontend -- --template react-ts
+npm.cmd install
+npm.cmd run prisma:deploy
+npm.cmd run build
+npm.cmd start
 ```
 
-## Useful Backend Scripts
+Frontend deployment flow:
 
-Run these from `backend/`:
-
-```text
-npm.cmd run dev              Start development server
-npm.cmd run build            Compile TypeScript
-npm.cmd start                Run compiled server
-npm.cmd run prisma:generate  Generate Prisma client
-npm.cmd run prisma:validate  Validate Prisma schema
+```powershell
+npm.cmd install
+npm.cmd run build
 ```
 
-## Notes
+## Development Notes
 
-- Keep `backend/.env` private.
-- Use `localhost:5433` for the Docker PostgreSQL database.
-- If you change `backend/src/prisma/schema.prisma`, run `npx.cmd prisma db push` and `npm.cmd run prisma:generate` again from `backend/`.
+- Regenerate Prisma after schema changes:
+
+```powershell
+npm.cmd run prisma:generate
+```
+
+- Apply migrations after schema changes:
+
+```powershell
+npm.cmd run prisma:deploy
+```
