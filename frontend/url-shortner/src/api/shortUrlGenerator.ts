@@ -1,11 +1,19 @@
 import axios from "axios";
 import { API_BASE_URL } from "./config";
 
-export const shortUrlGenerator = async (url : string) => {
+type ShortUrlGeneratorOptions = {
+    isProtected?: boolean;
+    customAlias?: string;
+    password?: string;
+};
+
+export const shortUrlGenerator = async (url : string, options: ShortUrlGeneratorOptions = {}) => {
 
     let data = JSON.stringify({
         "url": `${url}`,
-        "isProtected": false
+        "isProtected": options.isProtected ?? false,
+        "password": options.password || undefined,
+        "customAlias": options.customAlias || undefined
     });
 
     let config = {
