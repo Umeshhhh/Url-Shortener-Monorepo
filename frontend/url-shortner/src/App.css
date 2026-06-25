@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 :root {
-  user-select: none;
   color: #eef6ff;
   background: #07101d;
   font-family:

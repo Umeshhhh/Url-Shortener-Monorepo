@@ -121,12 +121,12 @@ const RedirectingPage = () => {
   const content = status === "loading" || status === "protected" ? null : statusContent[status];
 
   return (
-    <main className="relative grid min-h-screen place-items-center overflow-hidden bg-[#07101d] px-5 py-10 text-[#eef6ff]">
+    <main className="relative grid min-h-screen place-items-center overflow-hidden bg-[#07101d] px-4 py-8 text-[#eef6ff] sm:px-5 sm:py-10">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.026)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.026)_1px,transparent_1px)] bg-[size:86px_86px]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(0,214,190,0.28),transparent_30%),radial-gradient(circle_at_80%_80%,rgba(197,77,255,0.24),transparent_32%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_12%,rgba(5,9,18,0.65)_100%)]" />
 
-      <section className="relative z-10 w-full max-w-[620px] animate-[fadeUp_650ms_ease-out_both] rounded-[32px] border border-white/10 bg-[#08101e]/75 p-7 text-center shadow-[0_30px_90px_rgba(0,0,0,0.38)] backdrop-blur-xl sm:p-10">
+      <section className="relative z-10 w-full max-w-[620px] animate-[fadeUp_650ms_ease-out_both] rounded-[24px] border border-white/10 bg-[#08101e]/75 p-5 text-center shadow-[0_30px_90px_rgba(0,0,0,0.38)] backdrop-blur-xl sm:rounded-[32px] sm:p-10">
         <Link className="mx-auto mb-8 flex w-fit items-center gap-3 text-xl font-extrabold text-white" to="/">
           <span className="grid size-10 place-items-center rounded-full bg-[#05dac1] text-[#02181d]">
             <svg className="size-5" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2">
@@ -143,7 +143,7 @@ const RedirectingPage = () => {
             <div className="mx-auto grid size-16 place-items-center rounded-full border border-[#04e1c0]/35 bg-[#04e1c0]/10">
               <div className="size-8 animate-spin rounded-full border-2 border-[#04e1c0] border-r-transparent" />
             </div>
-            <h1 className="mt-7 text-3xl font-black text-white sm:text-5xl">Opening your link...</h1>
+            <h1 className="mt-7 text-3xl font-black leading-tight text-white sm:text-5xl">Opening your link...</h1>
             <p className="mx-auto mt-4 max-w-[430px] text-base font-medium leading-relaxed text-[#a7b0c5] sm:text-lg">
               Hold tight while Snip finds the destination and sends you there.
             </p>
@@ -161,11 +161,11 @@ const RedirectingPage = () => {
               Enter the password from the link owner to continue.
             </p>
 
-            <form className="mt-8 animate-[fadeUp_420ms_ease-out_both]" onSubmit={handleProtectedAccess}>
+            <form className="mt-8 animate-[fadeUp_420ms_ease-out_both] text-left" onSubmit={handleProtectedAccess}>
               <label className="mb-3 block text-xs font-extrabold uppercase tracking-[0.18em] text-[#9ca7bd]" htmlFor="redirect-password">
                 Password
               </label>
-              <div className="flex min-h-14 items-center gap-3 rounded-[22px] bg-[#22233d]/75 px-5 text-[#9ca7bd] transition duration-300 focus-within:bg-[#272943]/90 focus-within:ring-1 focus-within:ring-[#cf69ff]/45">
+              <div className="flex min-h-14 items-center gap-2 rounded-[20px] bg-[#22233d]/75 px-4 text-[#9ca7bd] transition duration-300 focus-within:bg-[#272943]/90 focus-within:ring-1 focus-within:ring-[#cf69ff]/45 sm:gap-3 sm:px-5">
                 <svg className="size-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2">
                   <path d="M7 11V8a5 5 0 0 1 10 0v3" />
                   <path d="M6 11h12v9H6z" />
@@ -174,7 +174,7 @@ const RedirectingPage = () => {
                   className="min-w-0 flex-1 border-0 bg-transparent text-base font-bold text-white outline-none placeholder:text-[#8d98ae] sm:text-lg"
                   id="redirect-password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password for this link"
+                  placeholder="Password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   disabled={isSubmitting}
@@ -211,10 +211,10 @@ const RedirectingPage = () => {
               )}
 
               <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-                <button className="flex min-h-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#04e1c0,#09d3b7)] px-6 font-extrabold text-[#02151a] transition hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-70" type="submit" disabled={isSubmitting}>
+                <button className="flex min-h-12 w-full items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#04e1c0,#09d3b7)] px-6 font-extrabold text-[#02151a] transition hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-70 sm:w-auto" type="submit" disabled={isSubmitting}>
                   {isSubmitting ? "Unlocking" : "Unlock link"}
                 </button>
-                <Link className="flex min-h-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-6 font-extrabold text-white transition hover:border-white/20 hover:bg-white/10" to="/">
+                <Link className="flex min-h-12 w-full items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-6 font-extrabold text-white transition hover:border-white/20 hover:bg-white/10 sm:w-auto" to="/">
                   Create a new link
                 </Link>
               </div>
@@ -230,10 +230,10 @@ const RedirectingPage = () => {
               {content!.description}
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link className="flex min-h-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#04e1c0,#09d3b7)] px-6 font-extrabold text-[#02151a] transition hover:-translate-y-0.5" to="/">
+              <Link className="flex min-h-12 w-full items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#04e1c0,#09d3b7)] px-6 font-extrabold text-[#02151a] transition hover:-translate-y-0.5 sm:w-auto" to="/">
                 Create a new link
               </Link>
-              <button className="min-h-12 rounded-2xl border border-white/10 bg-white/5 px-6 font-extrabold text-white transition hover:border-white/20 hover:bg-white/10" type="button" onClick={() => window.location.reload()}>
+              <button className="min-h-12 w-full rounded-2xl border border-white/10 bg-white/5 px-6 font-extrabold text-white transition hover:border-white/20 hover:bg-white/10 sm:w-auto" type="button" onClick={() => window.location.reload()}>
                 Try again
               </button>
             </div>
