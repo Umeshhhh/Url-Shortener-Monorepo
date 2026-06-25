@@ -8,6 +8,7 @@ export const env = {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL || "redis://localhost:6379",
     corsOrigins: process.env.CORS_ORIGIN?.split(",").map((origin) => origin.trim()).filter(Boolean),
+    safeBrowsingEnabled: process.env.SAFE_BROWSING_ENABLED === "true",
     googleSafeBrowsingApiKey: process.env.GOOGLE_SAFE_BROWSING_API_KEY,
     rateLimitWindowMs: optionalNumber(process.env.RATE_LIMIT_WINDOW_MS, 15 * 60 * 1000),
     rateLimitMaxRequests: optionalNumber(process.env.RATE_LIMIT_MAX_REQUESTS, 100),
@@ -18,7 +19,7 @@ export const validateEnv = () => {
         throw new Error("DATABASE_URL is required");
     }
 
-    if (!env.googleSafeBrowsingApiKey) {
+    if (env.safeBrowsingEnabled && !env.googleSafeBrowsingApiKey) {
         throw new Error("GOOGLE_SAFE_BROWSING_API_KEY is required");
     }
 };

@@ -216,7 +216,7 @@ const LandingPage = () => {
         <div className="flex justify-self-end gap-2 sm:gap-4">
           <a
             className="hidden min-h-11 items-center gap-3 rounded-full border border-white/10 bg-[#0b0c1c]/40 px-5 text-base font-bold text-[#a7adc0] transition hover:-translate-y-0.5 hover:text-white sm:flex xl:min-h-12 xl:text-lg"
-            href="https://github.com"
+            href="https://github.com/Umeshhhh/Url-Shortener-Monorepo"
             target="_blank"
             rel="noreferrer"
           >
@@ -314,7 +314,7 @@ const LandingPage = () => {
                     Custom alias
                   </label>
                   <div className="flex min-h-14 items-center gap-3 rounded-[22px] bg-[#22233d]/75 px-5 text-base font-bold text-[#9ca7bd] transition duration-300 focus-within:bg-[#272943]/90 focus-within:ring-1 focus-within:ring-[#08dcc3]/40 sm:text-lg">
-                    <span className="shrink-0 text-[#a8b2c8]">snip.ly/</span>
+                    <span className="shrink-0 text-[#a8b2c8]">snip/</span>
                     <input
                       className="min-w-0 flex-1 border-0 bg-transparent text-white outline-none placeholder:text-[#8d98ae]"
                       id="custom-alias"

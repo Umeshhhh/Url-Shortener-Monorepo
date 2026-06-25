@@ -4,6 +4,10 @@ import { env } from "../config/env";
 export const safeBrowsingCheck = async (url: string) => {
 
     const apiKey = env.googleSafeBrowsingApiKey;
+    if (!env.safeBrowsingEnabled) {
+        return true;
+    }
+
     if (!apiKey) {
         console.log("Google Safe Browsing API key is missing");
         return false;

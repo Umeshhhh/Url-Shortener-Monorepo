@@ -9,6 +9,9 @@ app.use(cors({
     origin: env.corsOrigins?.length ? env.corsOrigins : true
 }));
 app.use(express.json());
+app.get('/health', (_req, res) => {
+    res.status(200).json({ status: "ok" });
+});
 app.use('/', urlRoutes);
 
 export default app;

@@ -106,6 +106,41 @@ docker start url-shortner-postgres
 docker start url-shortner-redis
 ```
 
+## Run Full Stack With Docker Compose
+
+Copy the example environment file:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Start the full stack:
+
+```powershell
+docker compose up --build
+```
+
+Services:
+
+```text
+Frontend:   http://localhost
+Backend:    http://localhost:5000
+PostgreSQL: localhost:5433
+Redis:      localhost:6379
+```
+
+Stop the stack:
+
+```powershell
+docker compose down
+```
+
+Remove database and Redis volumes:
+
+```powershell
+docker compose down -v
+```
+
 ## Backend Setup
 
 From `backend/`:

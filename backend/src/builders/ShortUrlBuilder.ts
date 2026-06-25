@@ -17,6 +17,8 @@ export class ShortUrlBuilder {
         updatedAt: null,
     };
 
+    private ShortUrlBuilder() {}
+
     setOriginalUrl(originalUrl: string): this {
         this.shortUrl.originalUrl = originalUrl;
         return this;
