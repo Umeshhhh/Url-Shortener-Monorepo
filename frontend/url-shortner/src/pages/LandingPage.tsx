@@ -301,7 +301,7 @@ const LandingPage = () => {
                     Custom alias
                   </label>
                   <div className="flex min-h-14 items-center gap-2 rounded-[20px] bg-[#22233d]/75 px-4 text-base font-bold text-[#9ca7bd] transition duration-300 focus-within:bg-[#272943]/90 focus-within:ring-1 focus-within:ring-[#08dcc3]/40 sm:gap-3 sm:px-5 sm:text-lg">
-                    <span className="shrink-0 text-[#a8b2c8]">snip/</span>
+                    <span className="shrink-0 text-[#a8b2c8]">snip.umesh.app/</span>
                     <input
                       className="min-w-0 flex-1 border-0 bg-transparent text-white outline-none placeholder:text-[#8d98ae]"
                       id="custom-alias"
