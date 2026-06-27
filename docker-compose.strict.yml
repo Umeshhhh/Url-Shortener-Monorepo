@@ -1,0 +1,15 @@
+# Production override for Cloudflare Full (strict) TLS.
+#
+# Start with:
+#   docker compose -f docker-compose.yml -f docker-compose.strict.yml up -d --build
+#
+# The certificate files are deliberately not committed. See deploy/cloudflare/README.md.
+services:
+  frontend:
+    ports:
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./deploy/nginx/cloudflare-strict.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/cloudflare/origin.pem:/etc/nginx/tls/origin.pem:ro
+      - ./deploy/cloudflare/origin.key:/etc/nginx/tls/origin.key:ro
+

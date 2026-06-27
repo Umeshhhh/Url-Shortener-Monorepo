@@ -315,6 +315,42 @@ Success response:
 
 ## Deployment Notes
 
+### Cloudflare Full (strict) TLS
+
+The default Compose configuration serves HTTP on port 80 for local use. For a
+production origin behind Cloudflare, create a Cloudflare Origin CA certificate
+and save it as:
+
+```text
+deploy/cloudflare/origin.pem
+deploy/cloudflare/origin.key
+```
+
+Certificate details and hostname guidance are in
+`deploy/cloudflare/README.md`. Then start the stack with the strict-TLS
+override:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.strict.yml up -d --build
+```
+
+This exposes HTTPS on port 443, terminates TLS in the frontend Nginx container,
+and redirects HTTP traffic to HTTPS. Ensure the host or cloud firewall permits
+inbound TCP ports 80 and 443. Before changing Cloudflare's encryption mode, test
+the origin directly (replace `ORIGIN_IP`):
+
+```powershell
+curl.exe -k --resolve snip.umesh.app:443:ORIGIN_IP https://snip.umesh.app/
+```
+
+After the direct request succeeds, set Cloudflare **SSL/TLS encryption mode**
+to **Full (strict)** and leave the DNS record proxied. The `-k` flag is only for
+this direct diagnostic: Cloudflare Origin CA certificates are trusted by
+Cloudflare, not by normal browsers or the operating-system CA store.
+
+Do not expose the origin hostname directly to visitors when using a Cloudflare
+Origin CA certificate.
+
 Set these backend environment variables in production:
 
 ```text
