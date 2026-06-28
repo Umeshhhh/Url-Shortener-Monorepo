@@ -22,13 +22,21 @@ export const protectedUrl = async (req: Request, res: Response) => {
 
         const redisResult = await isProtectedRedisCheck(validShortCode);
         if(redisResult) {
-            if(redisResult.isProtected){
+            if(!redisResult.isActive){
+                return res.status(410).json({
+                    isActive: false,
+                    isProtected: redisResult.isProtected,
+                    mssg: "Url is Inactive"
+                });
+            }else if(redisResult.isProtected){
                 return res.status(200).json({
+                    isActive: true,
                     isProtected: true,
                     mssg: "URL is protected"
                 });
             }
             return res.status(200).json({
+                isActive: true,
                 isProtected: false,
                 mssg: "URL is not protected"
             })
@@ -36,20 +44,29 @@ export const protectedUrl = async (req: Request, res: Response) => {
 
         const dbResult = await isProtectedDatabaseCheck(validShortCode);
         if(dbResult) {
-            if(dbResult.isProtected){
+            if(!dbResult.isActive){
+                return res.status(410).json({
+                    isActive: false,
+                    isProtected: dbResult.isProtected,
+                    mssg: "Url is Inactive"
+                });
+            }else if(dbResult.isProtected){
                 return res.status(200).json({
+                    isActive: true,
                     isProtected: true,
                     mssg: "URL is protected"
                 });
             }
             
             return res.status(200).json({
+                isActive: true,
                 isProtected: false,
                 mssg: "URL is not protected"
             });
         }
 
         return res.status(404).json({
+            isActive: false,
             isProtected: false,
             mssg: "URL not found"
         });

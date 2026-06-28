@@ -11,6 +11,12 @@ export default defineConfig({
     tailwindcss(),
   ],
   server: {
+    watch: {
+      // Docker Desktop on Windows does not reliably forward filesystem events
+      // from bind mounts, so polling is required for consistent hot reload.
+      usePolling: true,
+      interval: 300,
+    },
     proxy: {
       "/api": {
         target: "http://localhost:5000",

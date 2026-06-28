@@ -65,6 +65,13 @@ export const redirectUrl = async (req : Request, res : Response) => {
             return res.status(404).json({ mssg: "URL not found" });
         }
 
+        if(!urlRecord.isActive){
+            return res.status(410).json({
+                isActive: false,
+                mssg: "Url is Inactive"
+            });
+        }
+
         if(urlRecord.isProtected) {
             return res.status(401).json({
                 mssg: "Password required to access link"
@@ -99,14 +106,24 @@ export const resolveUrl = async (req : Request, res : Response) => {
             return res.status(404).json({ mssg: "URL not found" });
         }
 
+        if(!urlRecord.isActive) {
+            return res.status(410).json({
+                isActive: false,
+                isProtected: urlRecord.isProtected,
+                mssg: "Url is Inactive"
+            });
+        }
+
         if(urlRecord.isProtected) {
             return res.status(401).json({
+                isActive: true,
                 isProtected: true,
                 mssg: "Password required to access link"
             });
         }
 
         return res.status(200).json({
+            isActive: true,
             mssg: `Original Url is retrieved from ${source}`,
             originalUrl : urlRecord.originalUrl
         });
@@ -138,6 +155,13 @@ export const accessProtectedUrl = async (req : Request, res : Response) => {
             return res.status(404).json({ mssg: "URL not found" });
         }
 
+        if(!urlRecord.isActive){
+            return res.status(410).json({
+                isActive: false,
+                mssg: "Url is Inactive"
+            });
+        }
+
         if(!urlRecord.isProtected || !urlRecord.passwordHash) {
             return res.status(200).json({
                 mssg: `Original Url is retrieved from ${source}`,
@@ -147,17 +171,20 @@ export const accessProtectedUrl = async (req : Request, res : Response) => {
 
         if(!urlPassword) {
             return res.status(401).json({
+                isActive: true,
                 mssg: "Password required to access link"
             });
         }
 
         if(!(await protectedCheck(urlPassword, urlRecord.passwordHash))){
             return res.status(401).json({
+                isActive: true,
                 mssg: "Invalid Credentials"
             });
         }
 
         return res.status(200).json({
+            isActive: true,
             mssg: `Original Url is retrieved from ${source}`,
             originalUrl : urlRecord.originalUrl
         });

@@ -2,6 +2,7 @@ import "../App.css";
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { shortUrlGenerator } from "../api/shortUrlGenerator";
+import { qrCodeGenerator } from "../api/qrCodeGenerator";
 
 type IconName = "link" | "github" | "zap" | "chart" | "shield" | "globe" | "spark" | "magicWand" | "lock" | "eye" | "eyeOff" | "x";
 
@@ -101,10 +102,13 @@ const LandingPage = () => {
   const [isCustom, setIsCustom] = useState(false);
   const [customAlias, setCustomAlias] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showQrCode, setShowQrCode] = useState(false);
+  const [qrCodeSrc, setQrCodeSrc] = useState("");
+  const [qrLoading, setQrLoading] = useState(false);
 
   const displayHost = useMemo(() => {
     if (!shortUrl) {
-      return "snip.link/your-link";
+      return "snip.umesh.app/your-link";
     }
 
     return shortUrl.replace(/^https?:\/\//i, "");
@@ -162,6 +166,42 @@ const LandingPage = () => {
       setErrorMessage("Copy failed. You can still select the link manually.");
     }
   };
+
+  const handleQrCode = async () => {
+
+    if(showQrCode){
+      setShowQrCode(false);
+      return;
+    }
+
+    const urlToShorten = normalizeUrl(webUrl);
+    
+    if(!urlToShorten){
+      setErrorMessage("Paste a URL first to generate its qr code");
+      return;
+    }
+
+    setQrLoading(true);
+    setShowQrCode(true);
+    setErrorMessage("");
+    
+    try {
+      const qrCode = await qrCodeGenerator(urlToShorten);
+      if(!qrCode){
+        setShowQrCode(false);
+        throw new Error("Error generating qr code");
+      }
+      setQrCodeSrc(qrCode);
+    }catch(err) {
+      console.log(err);
+      setErrorMessage("Error while generating qr code");
+      setShowQrCode(false);
+      setQrCodeSrc("");
+    }finally {
+      setQrLoading(false);
+    }
+
+  }
 
   useEffect(() => {
     if (!copied) {
@@ -248,7 +288,11 @@ const LandingPage = () => {
                 inputMode="url"
                 placeholder="Paste your long URL..."
                 value={webUrl}
-                onChange={(event) => setWebUrl(event.target.value)}
+                onChange={(event) => {
+                  setWebUrl(event.target.value)
+                  setShowQrCode(false);
+                  setQrCodeSrc("");
+                }}
                 disabled={isLoading}
               />
             </div>
@@ -291,9 +335,20 @@ const LandingPage = () => {
               Password protect
               {isProtected && <Icon name="x" className="size-4 opacity-75 transition group-hover:opacity-100" />}
             </button>
+
+            <button
+              className={`group flex min-h-11 w-full items-center justify-center gap-2 rounded-full border px-4 text-sm font-extrabold transition-all duration-300 sm:w-auto sm:text-base ${showQrCode ? "border-[#cf69ff] bg-[#cf69ff]/14 text-white shadow-[0_0_28px_rgba(207,105,255,0.18)]" : "border-white/5 bg-[#17152b]/75 text-[#9aa6ba] hover:border-[#cf69ff]/35 hover:text-white"}`}
+              type="button"
+              onClick={handleQrCode}
+              aria-pressed={showQrCode}
+            >
+              <Icon name="lock" className="size-5" />
+              Qr Code
+              {showQrCode && <Icon name="x" className="size-4 opacity-75 transition group-hover:opacity-100" />}
+            </button>
           </div>
 
-          {(isCustom || isProtected) && (
+          {(isCustom || isProtected || showQrCode) && (
             <div className="mt-5 grid gap-5 animate-[fadeUp_360ms_ease-out_both]">
               {isCustom && (
                 <div className="grid gap-3 animate-[fadeUp_360ms_ease-out_both]">
@@ -340,6 +395,22 @@ const LandingPage = () => {
                     >
                       <Icon name={showPassword ? "eyeOff" : "eye"} className="size-5" />
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {showQrCode && (
+                <div className="grid gap-3 animate-[fadeUp_360ms_ease-out_both]">
+                  <label className="text-center text-xs font-extrabold uppercase tracking-[0.18em] text-[#9ca7bd]" htmlFor="qr-code">
+                    Qr Code
+                  </label>
+                  <div className="flex min-h-14 items-center justify-center gap-2 rounded-[20px] bg-[#22233d]/75 px-4 text-base font-bold text-[#9ca7bd] transition duration-300 focus-within:bg-[#272943]/90 focus-within:ring-1 focus-within:ring-[#08dcc3]/40 sm:gap-3 sm:px-5 sm:text-lg">
+                    {qrLoading && 
+                      <p className="text-white text-xl">loading...</p>
+                    }
+                    {!qrLoading && qrCodeSrc &&
+                      <img id="qr-code" src={qrCodeSrc} alt="" />
+                    }
                   </div>
                 </div>
               )}

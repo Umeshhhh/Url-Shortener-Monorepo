@@ -141,6 +141,31 @@ Remove database and Redis volumes:
 docker compose down -v
 ```
 
+## Local Development With Docker
+
+Run the complete development stack with source-code hot reload:
+
+```powershell
+docker compose -f docker-compose.dev.yml up
+```
+
+If the production stack is currently running locally, stop it first with
+`docker compose down` so ports 5000 and 6379 are available.
+
+Open the frontend at `http://localhost:5173`. The backend is available at
+`http://localhost:5000`. Changes under `frontend/url-shortner/src` refresh in
+the browser, and changes under `backend/src` restart the backend automatically.
+
+Stop the development stack with:
+
+```powershell
+docker compose -f docker-compose.dev.yml down
+```
+
+The development stack uses its own database and Redis volumes. Production is
+unchanged and continues to use `docker compose up -d --build` after pulling new
+code.
+
 ## Backend Setup
 
 From `backend/`:
