@@ -11,7 +11,7 @@ export const qrCodeGenerator = async (url: string) => {
 
     }catch(err) {
         console.log(err);
-        throw new Error("Error while generating qr-code for the url!");
+        throw new Error("Error while generating qr-code for the url!", { cause: err });
     }
 
 }

@@ -112,12 +112,6 @@ const RedirectingPage = () => {
     }
   };
 
-  useEffect(() => {
-    if (password) {
-      setPasswordError("");
-    }
-  }, [password]);
-
   const content = status === "loading" || status === "protected" ? null : statusContent[status];
 
   return (
@@ -176,7 +170,10 @@ const RedirectingPage = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   value={password}
-                  onChange={(event) => setPassword(event.target.value)}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    setPasswordError("");
+                  }}
                   disabled={isSubmitting}
                   autoComplete="current-password"
                 />
