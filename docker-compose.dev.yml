@@ -33,9 +33,13 @@ services:
       retries: 10
 
   backend:
-    image: node:22-bookworm-slim
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: build
     working_dir: /app
-    command: sh -c "npm ci && npm run prisma:generate && npm run prisma:deploy && npm run dev"
+    # npm ci already invokes prisma generate through the package postinstall.
+    command: sh -c "npm ci && npm run prisma:deploy && npm run dev"
     environment:
       NODE_ENV: development
       PORT: 5000
