@@ -212,12 +212,6 @@ const LandingPage = () => {
     return () => window.clearTimeout(timeout);
   }, [copied]);
 
-  useEffect(() => {
-    if (webUrl || password || customAlias) {
-      setErrorMessage("");
-    }
-  }, [webUrl, password, customAlias]);
-
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#07101d] px-4 py-4 text-[#eef6ff] sm:px-6 sm:py-5 lg:px-12 xl:px-20 xl:py-7">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.026)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.026)_1px,transparent_1px)] bg-[size:90px_90px]" />
@@ -289,7 +283,8 @@ const LandingPage = () => {
                 placeholder="Paste your long URL..."
                 value={webUrl}
                 onChange={(event) => {
-                  setWebUrl(event.target.value)
+                  setWebUrl(event.target.value);
+                  setErrorMessage("");
                   setShowQrCode(false);
                   setQrCodeSrc("");
                 }}
@@ -362,7 +357,10 @@ const LandingPage = () => {
                       id="custom-alias"
                       placeholder="my-launch"
                       value={customAlias}
-                      onChange={(event) => setCustomAlias(event.target.value)}
+                      onChange={(event) => {
+                        setCustomAlias(event.target.value);
+                        setErrorMessage("");
+                      }}
                       disabled={isLoading}
                       autoComplete="off"
                     />
@@ -383,7 +381,10 @@ const LandingPage = () => {
                       type={showPassword ? "text" : "password"}
                       placeholder="Password for visitors"
                       value={password}
-                      onChange={(event) => setPassword(event.target.value)}
+                      onChange={(event) => {
+                        setPassword(event.target.value);
+                        setErrorMessage("");
+                      }}
                       disabled={isLoading}
                       autoComplete="new-password"
                     />

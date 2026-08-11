@@ -9,14 +9,14 @@ type ShortUrlGeneratorOptions = {
 
 export const shortUrlGenerator = async (url : string, options: ShortUrlGeneratorOptions = {}) => {
 
-    let data = JSON.stringify({
+    const data = JSON.stringify({
         "url": `${url}`,
         "isProtected": options.isProtected ?? false,
         "password": options.password || undefined,
         "customAlias": options.customAlias || undefined
     });
 
-    let config = {
+    const config = {
         method: 'post',
         maxBodyLength: Infinity,
         url: `${API_BASE_URL}/shorten`,
@@ -31,7 +31,7 @@ export const shortUrlGenerator = async (url : string, options: ShortUrlGenerator
         return response.data;
     }catch(err){
         console.log(err);
-        throw new Error("Error while requesting backend");
+        throw new Error("Error while requesting backend", { cause: err });
     }
 
 }
